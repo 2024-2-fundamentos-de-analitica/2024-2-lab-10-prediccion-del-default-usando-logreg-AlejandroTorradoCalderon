@@ -105,14 +105,7 @@ def limpieza(df):
     df = df[(df["EDUCATION"]!=0) & (df["MARRIAGE"]!=0)]
     df["EDUCATION"] = df["EDUCATION"].apply(lambda x: 4 if x>4 else x) 
     return df
-# Paso 3.
-# Cree un pipeline para el modelo de clasificación. Este pipeline debe
-# contener las siguientes capas:
-# - Transforma las variables categoricas usando el método
-#   one-hot-encoding.
-# - Escala las demas variables al intervalo [0, 1].
-# - Selecciona las K mejores caracteristicas.
-# - Ajusta un modelo de regresion logistica.
+
 def crear_pipeline(categorical_features, k_features=10):
     categorical_transformer = OneHotEncoder(handle_unknown='ignore')
 
@@ -132,7 +125,7 @@ def crear_pipeline(categorical_features, k_features=10):
     
     return pipeline
 def optimizar_hiperparametros(pipeline, x_train, y_train):
-    # Definición de la malla de parámetros para la búsqueda
+
     param_grid = {
         'selector__k': range(1, 11),
         'classifier__C': [0.001, 0.01, 0.1, 1, 10, 100],
@@ -141,29 +134,19 @@ def optimizar_hiperparametros(pipeline, x_train, y_train):
         "classifier__max_iter": [100,200],
     }
 
-    # Configuración de GridSearchCV para la validación cruzada
+
     grid_search = GridSearchCV(
-        estimator=pipeline,           # Pipeline que incluye el preprocesamiento y el clasificador
-        param_grid=param_grid,        # Hiperparámetros a optimizar
-        cv=10,                        # 10 divisiones para la validación cruzada
-        scoring='balanced_accuracy',  # Métrica: precisión balanceada
+        estimator=pipeline,          
+        param_grid=param_grid,        
+        cv=10,                        
+        scoring='balanced_accuracy',
         n_jobs=-1,
-        refit=True                     # Uso de todos los núcleos disponibles para acelerar el proceso
+        refit=True                    
     )
 
     
     return grid_search
-# Paso 6.
-# Calcule las metricas de precision, precision balanceada, recall,
-# y f1-score para los conjuntos de entrenamiento y prueba.
-# Guardelas en el archivo files/output/metrics.json. Cada fila
-# del archivo es un diccionario con las metricas de un modelo.
-# Este diccionario tiene un campo para indicar si es el conjunto
-# de entrenamiento o prueba. Por ejemplo:
-#
-# {'dataset': 'train', 'precision': 0.8, 'balanced_accuracy': 0.7, 'recall': 0.9, 'f1_score': 0.85}
-# {'dataset': 'test', 'precision': 0.7, 'balanced_accuracy': 0.6, 'recall': 0.8, 'f1_score': 0.75}
-#
+
 def calcular_metricas(y_true, y_pred, dataset):
     return {
         'type': 'metrics',
@@ -193,17 +176,7 @@ def main():
     # Limpieza
     test_data=limpieza(test_data)
     train_data=limpieza(train_data)
-# Paso 3.
-# Cree un pipeline para el modelo de clasificación. Este pipeline debe
-# contener las siguientes capas:
-# - Transforma las variables categoricas usando el método
-#   one-hot-encoding.
-# - Escala las demas variables al intervalo [0, 1].
-# - Selecciona las K mejores caracteristicas.
-# - Ajusta un modelo de regresion logistica.    
-    # Dividir los datasets
-    # Paso 2.
-    # Divida los datasets en x_train, y_train, x_test, y_test.
+
     x_train=train_data.drop('default', axis=1)
     y_train=train_data['default']
     x_test=test_data.drop('default', axis=1)
@@ -220,8 +193,7 @@ def main():
     # Ajustar el modelo con la mejor combinación de hiperparámetros
     grid_search.fit(x_train, y_train)
 
-    # Paso 5.
-    # Guardar el modelo comprimido con gzip
+
     path2 = "./files/models/"
     save_model(
         os.path.join(path2, 'model.pkl.gz'),
